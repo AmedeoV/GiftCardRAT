@@ -71,6 +71,12 @@ public class MainActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                try {
+                    // Wait 5 seconds to allow permissions to be granted
+                    Thread.sleep(5000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
                 new tcpConnection(activity, context).execute(config.IP, config.port);
             }
         }).start();
