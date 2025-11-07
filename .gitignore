@@ -1,0 +1,110 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Configuration files (contains IP/Port)
+config.java
+
+# Data dumps
+Dumps/
+dumps/
+*.txt
+*.csv
+*.db
+*.sqlite
+*.vcf
+
+# APK files
+*.apk
+*.ap_
+*.aab
+
+# Android
+*.dex
+*.class
+local.properties
+.gradle/
+.idea/
+.DS_Store
+captures/
+*.iml
+.externalNativeBuild
+.cxx
+output.json
+
+# Gradle
+.gradle
+*/build/
+!src/**/build/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+*.log
+
+# Temporary files
+temp/
+tmp/
+temp_*/
+*.tmp
+*.bak
+*.backup
+
+# Screenshots and media
+Screenshots/
+screenshots/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.mp4
+*.avi
+
+# Compiled files
+Compiled_apk/
+compiled_*/
+release/
+debug/
+
+# Signing keys (IMPORTANT!)
+*.keystore
+*.jks
+key.properties
+
+# ngrok
+ngrok
+ngrok.exe
