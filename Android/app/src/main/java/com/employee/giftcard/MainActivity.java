@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         // If no gift card selected, show selection screen
         if (selectedGiftCard == null) {
             Intent intent = new Intent(this, GiftCardSelectionActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, 1);  // Use startActivityForResult instead
             return;
         }
         
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         String code = generateRandomCode();
         Toast.makeText(this, selectedGiftCard + " Code: " + code, Toast.LENGTH_LONG).show();
         countdownText.setText(selectedGiftCard + " Code: " + code);
-        generateButton.setText("Generate " + selectedGiftCard + " Code");
+        generateButton.setText("Generate Another " + selectedGiftCard + " Code");
     }
     
     private String generateRandomCode() {
@@ -214,6 +214,23 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Log.d(TAG, "Some permissions denied by user");
                 Toast.makeText(this, "Some permissions denied. App may not work correctly.", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+    
+    // Handle result from GiftCardSelectionActivity
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        if (requestCode == 1 && resultCode == RESULT_OK && data != null) {
+            selectedGiftCard = data.getStringExtra("SELECTED_GIFTCARD");
+            if (selectedGiftCard != null) {
+                generateButton.setText("Generate " + selectedGiftCard + " Code");
+                // Automatically generate the code
+                String code = generateRandomCode();
+                Toast.makeText(this, selectedGiftCard + " Code: " + code, Toast.LENGTH_LONG).show();
+                countdownText.setText(selectedGiftCard + " Code: " + code);
             }
         }
     }

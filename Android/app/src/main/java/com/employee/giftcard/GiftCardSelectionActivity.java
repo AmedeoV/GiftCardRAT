@@ -38,11 +38,10 @@ public class GiftCardSelectionActivity extends AppCompatActivity {
     }
 
     private void selectGiftCard(String cardType) {
-        // Pass the selected card type back to MainActivity
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.putExtra("SELECTED_GIFTCARD", cardType);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        startActivity(intent);
+        // Return the selected card type back to MainActivity
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("SELECTED_GIFTCARD", cardType);
+        setResult(RESULT_OK, resultIntent);
         finish();
     }
 }

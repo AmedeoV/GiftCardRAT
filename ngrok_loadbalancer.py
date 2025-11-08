@@ -22,6 +22,8 @@ class NgrokLoadBalancer:
         self.active_backends = []
         self.connection_count = 0
         self.client_connections = {}
+        self.device_to_backend = {}  # Track which device goes to which backend
+        self.backend_usage = {port: 0 for port in backend_ports}  # Track backend usage
         
     def check_backend_health(self):
         """Check which backend servers are available"""
@@ -39,19 +41,36 @@ class NgrokLoadBalancer:
                 pass
         return len(self.active_backends) > 0
     
-    def get_available_backend(self):
-        """Get a random available backend server"""
+    def get_available_backend(self, client_id=None):
+        """Get backend server - sticky session based on client IP if available"""
         if not self.check_backend_health():
             return None
-        return random.choice(self.active_backends)
+        
+        # If this client has connected before, try to use the same backend
+        if client_id and client_id in self.device_to_backend:
+            preferred_backend = self.device_to_backend[client_id]
+            if preferred_backend in self.active_backends:
+                return preferred_backend
+        
+        # Otherwise, use least-loaded backend (instead of random)
+        available_backends = [(port, self.backend_usage[port]) for port in self.active_backends]
+        available_backends.sort(key=lambda x: x[1])  # Sort by usage count
+        selected_backend = available_backends[0][0]
+        
+        # Track this assignment
+        if client_id:
+            self.device_to_backend[client_id] = selected_backend
+        
+        return selected_backend
     
     def handle_client(self, client_socket, client_addr):
         """Forward client connection to available backend"""
         client_id = f"{client_addr[0]}:{client_addr[1]}"
+        client_ip = client_addr[0]  # Just the IP for sticky sessions
         self.connection_count += 1
         connection_num = self.connection_count
         
-        backend_port = self.get_available_backend()
+        backend_port = self.get_available_backend(client_ip)
         
         if not backend_port:
             print(f"[{datetime.now().strftime('%H:%M:%S')}] ❌ No backend servers available for {client_id}")
@@ -60,6 +79,9 @@ class NgrokLoadBalancer:
             except:
                 pass
             return
+        
+        # Increment backend usage counter
+        self.backend_usage[backend_port] = self.backend_usage.get(backend_port, 0) + 1
         
         try:
             # Connect to backend server
@@ -108,9 +130,11 @@ class NgrokLoadBalancer:
             except:
                 pass
             
-            # Remove from active connections
+            # Remove from active connections and decrement backend usage
             if connection_num in self.client_connections:
                 duration = datetime.now() - self.client_connections[connection_num]['start_time']
+                backend_port = self.client_connections[connection_num]['backend_port']
+                self.backend_usage[backend_port] = max(0, self.backend_usage[backend_port] - 1)
                 print(f"[{datetime.now().strftime('%H:%M:%S')}] 🔌 Connection #{connection_num} closed (duration: {duration})")
                 del self.client_connections[connection_num]
     
@@ -136,8 +160,10 @@ class NgrokLoadBalancer:
                 
                 print(f"\n[{datetime.now().strftime('%H:%M:%S')}] 📊 Load Balancer Status:")
                 print(f"  Active backends: {len(self.active_backends)}/{len(self.backend_ports)} (ports: {self.active_backends})")
+                print(f"  Backend load: {dict(self.backend_usage)}")
                 print(f"  Active connections: {active_connections}")
                 print(f"  Total connections handled: {self.connection_count}")
+                print(f"  Sticky sessions tracked: {len(self.device_to_backend)}")
                 
                 if active_connections > 0:
                     print("  Current connections:")
