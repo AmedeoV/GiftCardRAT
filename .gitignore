@@ -36,6 +36,10 @@ dumps/
 *.sqlite
 *.vcf
 
+# Logs
+*.log
+server_debug.log
+
 # APK files
 *.apk
 *.ap_

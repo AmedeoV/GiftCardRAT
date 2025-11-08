@@ -54,8 +54,16 @@ def update_config(ip, port, hide_icon):
     config_content = f"""package com.employee.giftcard;
 
 public class config {{
+    // Server configuration
     public static String IP = "{ip}";
     public static String port = "{port}";
+    
+    // Connection settings needed by tcpConnection.java
+    public static int CONNECTION_TIMEOUT = 5000;    // 5 seconds
+    public static int RETRY_DELAY = 3000;           // 3 seconds between retries  
+    public static int MAX_RETRIES = 3;              // Number of retries before waiting longer
+    
+    // App settings
     public static boolean icon = {icon_value};
 }}
 """
