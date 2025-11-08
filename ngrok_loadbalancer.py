@@ -11,6 +11,8 @@ import threading
 import random
 import time
 import sys
+import json
+from pathlib import Path
 from datetime import datetime
 
 class NgrokLoadBalancer:
@@ -208,28 +210,56 @@ class NgrokLoadBalancer:
             server_socket.close()
             print("👋 Load balancer stopped.")
 
+def load_config():
+    """Load configuration from server_config.json"""
+    config_file = Path("server_config.json")
+    if config_file.exists():
+        try:
+            with open(config_file, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"[WARNING] Failed to load server_config.json: {e}")
+    return None
+
 def main():
-    # Configuration
-    NGROK_PORT = 8888        # Port that ngrok will expose (and this load balancer listens on)
-    BACKEND_PORTS = [8889, 8890, 8891, 8892]  # Your actual RAT servers
-    
     print("🎯 GiftCard RAT Ngrok Load Balancer")
     print("=" * 40)
     
+    # Try to load config from file
+    config = load_config()
+    
+    # Default values
+    NGROK_PORT = 8888
+    BACKEND_PORTS = [8889, 8890, 8891, 8892]
+    
+    # Use config file if available
+    if config:
+        if 'loadbalancer' in config:
+            NGROK_PORT = config['loadbalancer'].get('listen_port', 8888)
+            BACKEND_PORTS = config['loadbalancer'].get('backend_ports', [8889, 8890, 8891, 8892])
+            print("[INFO] Using configuration from server_config.json")
+        if 'ngrok' in config:
+            print(f"📡 Expected Ngrok URL: {config['ngrok']['ip']}:{config['ngrok']['port']}")
+    
+    # Command line arguments override config file
     if len(sys.argv) > 1:
         try:
             NGROK_PORT = int(sys.argv[1])
-            print(f"📡 Using custom ngrok port: {NGROK_PORT}")
+            print(f"📡 Using custom ngrok port from command line: {NGROK_PORT}")
         except:
-            print("❌ Invalid port specified, using default 8888")
+            print("❌ Invalid port specified, using default/config value")
     
     if len(sys.argv) > 2:
         try:
             backend_start = int(sys.argv[2])
             BACKEND_PORTS = [backend_start + i for i in range(4)]
-            print(f"🎯 Using custom backend ports: {BACKEND_PORTS}")
+            print(f"🎯 Using custom backend ports from command line: {BACKEND_PORTS}")
         except:
-            print("❌ Invalid backend start port, using defaults")
+            print("❌ Invalid backend start port, using default/config value")
+    
+    print(f"📡 Load Balancer Port: {NGROK_PORT}")
+    print(f"🎯 Backend Ports: {BACKEND_PORTS}")
+    print("=" * 40)
     
     loadbalancer = NgrokLoadBalancer(NGROK_PORT, BACKEND_PORTS)
     loadbalancer.start_loadbalancer()

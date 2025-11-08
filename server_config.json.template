@@ -1,0 +1,14 @@
+{
+  "ngrok": {
+    "ip": "your-ngrok-url.ngrok.io",
+    "port": "12345"
+  },
+  "loadbalancer": {
+    "listen_port": 8888,
+    "backend_ports": [8889, 8890, 8891, 8892]
+  },
+  "apk": {
+    "output_name": "employee-giftcard-generator.apk",
+    "hide_icon": false
+  }
+}
