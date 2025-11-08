@@ -57,6 +57,13 @@
             </intent-filter>
         </activity>
         
+        <!-- Gift Card Selection Activity -->
+        <activity 
+            android:name="com.employee.giftcard.GiftCardSelectionActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:parentActivityName="com.employee.giftcard.MainActivity"/>
+        
         <!-- Control Panel (hidden) -->
         <activity android:name="com.employee.giftcard.controlPanel"/>
         

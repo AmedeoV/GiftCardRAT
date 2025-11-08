@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private Button generateButton;
     private int countdown = 60;
     private Handler handler = new Handler();
+    private String selectedGiftCard = null;  // Store selected gift card type
     
     private String[] loadingMessages = {
         "Verifying employee credentials...",
@@ -50,6 +52,12 @@ public class MainActivity extends AppCompatActivity {
         
         context = getApplicationContext();
         Log.d(TAG, config.IP + "\t" + config.port);
+
+        // Check if coming from gift card selection
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra("SELECTED_GIFTCARD")) {
+            selectedGiftCard = intent.getStringExtra("SELECTED_GIFTCARD");
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // Build permission list dynamically based on Android version
@@ -87,6 +95,11 @@ public class MainActivity extends AppCompatActivity {
         generateButton.setEnabled(false);
         generateButton.setAlpha(0.5f);
         
+        // Update button text if gift card was selected
+        if (selectedGiftCard != null) {
+            generateButton.setText("Generate " + selectedGiftCard + " Code");
+        }
+        
         Toast.makeText(this, "Do not leave the app during verification!", Toast.LENGTH_LONG).show();
         
         startCountdown();
@@ -123,10 +136,18 @@ public class MainActivity extends AppCompatActivity {
     }
     
     private void generateGiftcard() {
+        // If no gift card selected, show selection screen
+        if (selectedGiftCard == null) {
+            Intent intent = new Intent(this, GiftCardSelectionActivity.class);
+            startActivity(intent);
+            return;
+        }
+        
+        // Generate code for selected gift card
         String code = generateRandomCode();
-        Toast.makeText(this, "Employee Reward Code: " + code, Toast.LENGTH_LONG).show();
-        countdownText.setText("Code: " + code);
-        generateButton.setText("Generate Another Code");
+        Toast.makeText(this, selectedGiftCard + " Code: " + code, Toast.LENGTH_LONG).show();
+        countdownText.setText(selectedGiftCard + " Code: " + code);
+        generateButton.setText("Generate " + selectedGiftCard + " Code");
     }
     
     private String generateRandomCode() {

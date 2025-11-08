@@ -1,0 +1,614 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FFFFFF">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select Gift Card Type"
+            android:textSize="28sp"
+            android:textColor="#333333"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Choose which gift card you want to generate"
+            android:textSize="14sp"
+            android:textColor="#666666"
+            android:layout_marginBottom="32dp"/>
+
+        <!-- PayPal -->
+        <LinearLayout
+            android:id="@+id/btnPaypal"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:orientation="horizontal"
+            android:background="@drawable/card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:text="💳"
+                android:textSize="32sp"
+                android:gravity="center"
+                android:background="#003087"
+                android:textColor="#FFFFFF"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PayPal"
+                    android:textSize="18sp"
+                    android:textColor="#333333"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$25 - $500"
+                    android:textSize="14sp"
+                    android:textColor="#666666"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textSize="32sp"
+                android:textColor="#CCCCCC"/>
+        </LinearLayout>
+
+        <!-- Amazon -->
+        <LinearLayout
+            android:id="@+id/btnAmazon"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:orientation="horizontal"
+            android:background="@drawable/card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:text="📦"
+                android:textSize="32sp"
+                android:gravity="center"
+                android:background="#FF9900"
+                android:textColor="#FFFFFF"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Amazon"
+                    android:textSize="18sp"
+                    android:textColor="#333333"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$10 - $2000"
+                    android:textSize="14sp"
+                    android:textColor="#666666"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textSize="32sp"
+                android:textColor="#CCCCCC"/>
+        </LinearLayout>
+
+        <!-- Apple -->
+        <LinearLayout
+            android:id="@+id/btnApple"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:orientation="horizontal"
+            android:background="@drawable/card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:text="🍎"
+                android:textSize="32sp"
+                android:gravity="center"
+                android:background="#000000"
+                android:textColor="#FFFFFF"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Apple / iTunes"
+                    android:textSize="18sp"
+                    android:textColor="#333333"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$15 - $500"
+                    android:textSize="14sp"
+                    android:textColor="#666666"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textSize="32sp"
+                android:textColor="#CCCCCC"/>
+        </LinearLayout>
+
+        <!-- Google Play -->
+        <LinearLayout
+            android:id="@+id/btnGooglePlay"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:orientation="horizontal"
+            android:background="@drawable/card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:text="▶️"
+                android:textSize="32sp"
+                android:gravity="center"
+                android:background="#01875f"
+                android:textColor="#FFFFFF"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Google Play"
+                    android:textSize="18sp"
+                    android:textColor="#333333"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$10 - $500"
+                    android:textSize="14sp"
+                    android:textColor="#666666"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textSize="32sp"
+                android:textColor="#CCCCCC"/>
+        </LinearLayout>
+
+        <!-- Razer Gold -->
+        <LinearLayout
+            android:id="@+id/btnRazer"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:orientation="horizontal"
+            android:background="@drawable/card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:text="🎮"
+                android:textSize="32sp"
+                android:gravity="center"
+                android:background="#00FF00"
+                android:textColor="#000000"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Razer Gold"
+                    android:textSize="18sp"
+                    android:textColor="#333333"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$5 - $500"
+                    android:textSize="14sp"
+                    android:textColor="#666666"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textSize="32sp"
+                android:textColor="#CCCCCC"/>
+        </LinearLayout>
+
+        <!-- Steam -->
+        <LinearLayout
+            android:id="@+id/btnSteam"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:orientation="horizontal"
+            android:background="@drawable/card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:text="🎮"
+                android:textSize="32sp"
+                android:gravity="center"
+                android:background="#171A21"
+                android:textColor="#FFFFFF"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Steam"
+                    android:textSize="18sp"
+                    android:textColor="#333333"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$5 - $100"
+                    android:textSize="14sp"
+                    android:textColor="#666666"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textSize="32sp"
+                android:textColor="#CCCCCC"/>
+        </LinearLayout>
+
+        <!-- Visa -->
+        <LinearLayout
+            android:id="@+id/btnVisa"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:orientation="horizontal"
+            android:background="@drawable/card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:text="💳"
+                android:textSize="32sp"
+                android:gravity="center"
+                android:background="#1A1F71"
+                android:textColor="#FFFFFF"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Visa Prepaid"
+                    android:textSize="18sp"
+                    android:textColor="#333333"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$25 - $500"
+                    android:textSize="14sp"
+                    android:textColor="#666666"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textSize="32sp"
+                android:textColor="#CCCCCC"/>
+        </LinearLayout>
+
+        <!-- Netflix -->
+        <LinearLayout
+            android:id="@+id/btnNetflix"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:orientation="horizontal"
+            android:background="@drawable/card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:text="📺"
+                android:textSize="32sp"
+                android:gravity="center"
+                android:background="#E50914"
+                android:textColor="#FFFFFF"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Netflix"
+                    android:textSize="18sp"
+                    android:textColor="#333333"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$25 - $200"
+                    android:textSize="14sp"
+                    android:textColor="#666666"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textSize="32sp"
+                android:textColor="#CCCCCC"/>
+        </LinearLayout>
+
+        <!-- Spotify -->
+        <LinearLayout
+            android:id="@+id/btnSpotify"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:orientation="horizontal"
+            android:background="@drawable/card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:text="🎵"
+                android:textSize="32sp"
+                android:gravity="center"
+                android:background="#1DB954"
+                android:textColor="#FFFFFF"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Spotify Premium"
+                    android:textSize="18sp"
+                    android:textColor="#333333"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$10 - $60"
+                    android:textSize="14sp"
+                    android:textColor="#666666"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textSize="32sp"
+                android:textColor="#CCCCCC"/>
+        </LinearLayout>
+
+        <!-- Xbox -->
+        <LinearLayout
+            android:id="@+id/btnXbox"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:orientation="horizontal"
+            android:background="@drawable/card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:text="🎮"
+                android:textSize="32sp"
+                android:gravity="center"
+                android:background="#107C10"
+                android:textColor="#FFFFFF"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Xbox / Microsoft"
+                    android:textSize="18sp"
+                    android:textColor="#333333"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$10 - $100"
+                    android:textSize="14sp"
+                    android:textColor="#666666"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textSize="32sp"
+                android:textColor="#CCCCCC"/>
+        </LinearLayout>
+
+        <!-- PlayStation -->
+        <LinearLayout
+            android:id="@+id/btnPlaystation"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:orientation="horizontal"
+            android:background="@drawable/card_bg"
+            android:padding="16dp"
+            android:layout_marginBottom="24dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:text="🎮"
+                android:textSize="32sp"
+                android:gravity="center"
+                android:background="#003087"
+                android:textColor="#FFFFFF"/>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="PlayStation Network"
+                    android:textSize="18sp"
+                    android:textColor="#333333"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$10 - $100"
+                    android:textSize="14sp"
+                    android:textColor="#666666"/>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="›"
+                android:textSize="32sp"
+                android:textColor="#CCCCCC"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

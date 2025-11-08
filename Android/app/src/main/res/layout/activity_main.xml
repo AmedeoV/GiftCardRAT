@@ -36,7 +36,7 @@
         android:id="@+id/generateButton"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:text="Generate Employee Code"
+        android:text="Select Gift Card"
         android:textSize="18sp"
         android:textColor="#FFFFFF"
         android:background="@drawable/button_bg"
