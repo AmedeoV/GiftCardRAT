@@ -8,7 +8,7 @@ Write-Host "=" * 70 -ForegroundColor Red
 Write-Host ""
 
 # Define all ports to kill
-$ports = @(8888, 8889, 8890, 8891, 8892)
+$ports = @(9888, 9889, 9890, 9891, 9892)
 $killedPids = @()
 
 foreach ($port in $ports) {
@@ -60,11 +60,11 @@ foreach ($port in $ports) {
 Write-Host ""
 Write-Host "🔍 Checking for server PowerShell windows by title..." -ForegroundColor Yellow
 $targetTitles = @(
-    "Backend Server - Port 8889",
-    "Backend Server - Port 8890", 
-    "Backend Server - Port 8891",
-    "Backend Server - Port 8892",
-    "Load Balancer - Port 8888"
+    "Backend Server - Port 9889",
+    "Backend Server - Port 9890", 
+    "Backend Server - Port 9891",
+    "Backend Server - Port 9892",
+    "Load Balancer - Port 9888"
 )
 
 foreach ($title in $targetTitles) {

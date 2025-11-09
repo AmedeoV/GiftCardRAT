@@ -203,6 +203,9 @@ Examples:
         print("  Either provide -i and -p arguments, or create server_config.json")
         sys.exit(1)
     
+    # Get listen_port from config for ngrok command display
+    listen_port = config['loadbalancer']['listen_port'] if config and 'loadbalancer' in config else 9888
+    
     # Determine output filename
     if args.output:
         output = args.output
@@ -253,8 +256,8 @@ Examples:
 [INFO] To start multi-server system:
   .\\start_multi.ps1
 
-[INFO] Ngrok should forward to:
-  ngrok tcp 8888
+[INFO] Setup ngrok tunnel with:
+  ngrok tcp {listen_port}
 ===================================
 """)
 
