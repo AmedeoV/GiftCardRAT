@@ -888,6 +888,34 @@ def autoDownloadPhotosOptimized(client, device_folder, max_photos=10):
                     
                     # Save the binary file
                     if file_data and len(file_data) > 0:
+                        # Check if this is an error message instead of image data
+                        # Try to decode as text to check for error messages
+                        try:
+                            text_check = file_data[:100].decode('utf-8', errors='ignore').lower()
+                            if any(err in text_check for err in ['file not found', 'error', 'failed', 'permission denied', 'not accessible']):
+                                print(stdOutput("error")+f"✗ {file_data[:100].decode('utf-8', errors='ignore').strip()}")
+                                continue
+                        except:
+                            pass  # Binary data, which is good
+                        
+                        # Check if it looks like a valid image (JPEG starts with FF D8, PNG starts with 89 50 4E 47)
+                        if len(file_data) < 100:
+                            print(stdOutput("warning")+f"✗ File too small ({len(file_data)} bytes) - likely corrupt")
+                            continue
+                        
+                        # Check for JPEG magic bytes
+                        is_jpeg = file_data[:2] == b'\xff\xd8'
+                        # Check for PNG magic bytes
+                        is_png = file_data[:4] == b'\x89PNG'
+                        # Check for other common image formats
+                        is_webp = file_data[:4] == b'RIFF' and file_data[8:12] == b'WEBP'
+                        
+                        if not (is_jpeg or is_png or is_webp):
+                            print(stdOutput("warning")+f"✗ Not a valid image format (got {len(file_data)} bytes)")
+                            # Show first few bytes for debugging
+                            print(stdOutput("info")+f"   First bytes: {file_data[:20]}")
+                            continue
+                        
                         clean_filename = "".join(c for c in filename_only if c.isalnum() or c in '._-')
                         output_path = f"{device_folder}{os.sep}photo_{i:02d}_{clean_filename}"
                         
@@ -1011,6 +1039,32 @@ def autoDownloadWhatsAppMediaOptimized(client, device_folder, max_files=10):
                     
                     # Save the binary file
                     if file_data and len(file_data) > 0:
+                        # Check if this is an error message instead of media data
+                        try:
+                            text_check = file_data[:100].decode('utf-8', errors='ignore').lower()
+                            if any(err in text_check for err in ['file not found', 'error', 'failed', 'permission denied', 'not accessible']):
+                                print(stdOutput("error")+f"✗ {file_data[:100].decode('utf-8', errors='ignore').strip()}")
+                                continue
+                        except:
+                            pass  # Binary data, which is good
+                        
+                        # Check if it looks like a valid media file
+                        if len(file_data) < 100:
+                            print(stdOutput("warning")+f"✗ File too small ({len(file_data)} bytes) - likely corrupt")
+                            continue
+                        
+                        # Check for common media file magic bytes
+                        is_jpeg = file_data[:2] == b'\xff\xd8'
+                        is_png = file_data[:4] == b'\x89PNG'
+                        is_webp = file_data[:4] == b'RIFF' and file_data[8:12] == b'WEBP'
+                        is_mp4 = file_data[4:8] == b'ftyp'  # MP4 signature
+                        is_valid = is_jpeg or is_png or is_webp or is_mp4
+                        
+                        if not is_valid:
+                            print(stdOutput("warning")+f"✗ Not a valid media format (got {len(file_data)} bytes)")
+                            print(stdOutput("info")+f"   First bytes: {file_data[:20]}")
+                            continue
+                        
                         clean_filename = "".join(c for c in filename_only if c.isalnum() or c in '._-')
                         output_path = f"{device_folder}{os.sep}whatsapp_{i:02d}_{clean_filename}"
                         
